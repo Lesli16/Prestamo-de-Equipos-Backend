@@ -107,4 +107,42 @@ public class LoanRequestService {
     public List<LoanRequest> findAll() {
         return loanRequestRepository.findAll();
     }
+
+    public List<LoanRequest> findAllByUserName() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userName = userDetails.getUsername();
+        return loanRequestRepository.findAllByUser_UserNameOrderByDateCreatedDesc(userName);
+    }
+
+    public List<LoanRequest> findAllByPendingStatus() {
+        return loanRequestRepository.findAllByLoanRequestStatus_StatusOrderByDateCreatedDesc(LoanRequestStatuses.PENDIENTE);
+    }
+
+    public void approveOrDenyLoanRequest(String loanRequestId, String status) throws GeneralException {
+        LoanRequest loanRequest = loanRequestRepository.findById(loanRequestId)
+                .orElseThrow(() -> new GeneralException("No se encontró la solicitud: " + loanRequestId));
+        if (status.equals(LoanRequestStatuses.APROBADO.name())) {
+            LoanRequestStatus approved = new LoanRequestStatus(2, LoanRequestStatuses.APROBADO);
+            loanRequest.setLoanRequestStatus(approved);
+        }
+        if (status.equals(LoanRequestStatuses.RECHAZADO.name())) {
+            LoanRequestStatus denied = new LoanRequestStatus(3, LoanRequestStatuses.RECHAZADO);
+            loanRequest.setLoanRequestStatus(denied);
+
+            handleAvailableEquipment(loanRequest.getSelectedEquipments());
+        }
+        loanRequestRepository.save(loanRequest);
+    }
+
+    public void handleAvailableEquipment(List<LoanSelectedEquipment> selectedEquipments) {
+        for (LoanSelectedEquipment selectedEquipment : selectedEquipments) {
+            Equipment equipmentToUpdate = selectedEquipment.getEquipment();
+
+            int newTotalOnLoanQuantity = equipmentToUpdate.getOnLoanQuantity() - selectedEquipment.getQuantity();
+            equipmentToUpdate.setOnLoanQuantity(newTotalOnLoanQuantity);
+
+            int newTotalAvailable= equipmentToUpdate.getAvailableQuantity() + selectedEquipment.getQuantity();
+            equipmentToUpdate.setAvailableQuantity(newTotalAvailable);
+        }
+    }
 }
