@@ -36,6 +36,8 @@ public class User {
     @NotNull
     private String password;
 
+    private String resetPasswordToken;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
     public User() {
@@ -44,5 +46,10 @@ public class User {
         this.userName = userName;
         this.email = email;
         this.password = password;
+    }
+
+    public String getFullName() {
+        if (this.lastNames == null) return this.name;
+        return this.name + " " + this.lastNames;
     }
 }

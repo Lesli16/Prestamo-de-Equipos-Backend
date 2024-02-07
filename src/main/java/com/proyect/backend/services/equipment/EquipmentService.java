@@ -21,15 +21,9 @@ public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
 
-    public void createEquipment(Equipment createEquipmentDto, MultipartFile image) throws IOException {
-        Equipment equipment = new Equipment();
+    public void createEquipment(Equipment equipment, MultipartFile image) throws IOException {
         if (image != null) equipment.setImage(image.getBytes());
-        equipment.setName(createEquipmentDto.getName());
-        equipment.setModel(createEquipmentDto.getModel());
-        equipment.setDescription(createEquipmentDto.getDescription());
-        equipment.setStock(createEquipmentDto.getStock());
-        equipment.setEquipmentClassification(createEquipmentDto.getEquipmentClassification());
-        equipment.setAvailableQuantity(createEquipmentDto.getStock());
+        equipment.setAvailableQuantity(equipment.getStock());
         equipment.setInMaintenanceQuantity(0);
         equipment.setOnLoanQuantity(0);
         equipmentRepository.save(equipment);

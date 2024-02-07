@@ -43,4 +43,11 @@ public class LoanRequestController {
         loanRequestService.approveOrDenyLoanRequest(loanRequestId, status);
         return new ResponseEntity<>(new ResponseMessage("La solicitud ha sido " + status.toLowerCase()), HttpStatus.OK);
     }
+
+    @PutMapping("/equipments-returned")
+    public ResponseEntity<ResponseMessage> updateIfEquipmentsHasReturned(@RequestParam String loanRequestId,
+                                                                    @RequestParam boolean returned) throws GeneralException {
+        loanRequestService.isEquipmentReturned(loanRequestId,returned);
+        return new ResponseEntity<>(new ResponseMessage("Se ha devuelto los equipos solicitados"), HttpStatus.OK);
+    }
 }

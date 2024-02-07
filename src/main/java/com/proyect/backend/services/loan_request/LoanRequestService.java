@@ -124,11 +124,12 @@ public class LoanRequestService {
         if (status.equals(LoanRequestStatuses.APROBADO.name())) {
             LoanRequestStatus approved = new LoanRequestStatus(2, LoanRequestStatuses.APROBADO);
             loanRequest.setLoanRequestStatus(approved);
+            loanRequest.setIsInLoan(true);
         }
         if (status.equals(LoanRequestStatuses.RECHAZADO.name())) {
             LoanRequestStatus denied = new LoanRequestStatus(3, LoanRequestStatuses.RECHAZADO);
             loanRequest.setLoanRequestStatus(denied);
-
+            loanRequest.setIsInLoan(null);
             handleAvailableEquipment(loanRequest.getSelectedEquipments());
         }
         loanRequestRepository.save(loanRequest);
@@ -141,8 +142,29 @@ public class LoanRequestService {
             int newTotalOnLoanQuantity = equipmentToUpdate.getOnLoanQuantity() - selectedEquipment.getQuantity();
             equipmentToUpdate.setOnLoanQuantity(newTotalOnLoanQuantity);
 
-            int newTotalAvailable= equipmentToUpdate.getAvailableQuantity() + selectedEquipment.getQuantity();
+            int newTotalAvailable = equipmentToUpdate.getAvailableQuantity() + selectedEquipment.getQuantity();
             equipmentToUpdate.setAvailableQuantity(newTotalAvailable);
+        }
+    }
+
+    public void isEquipmentReturned(String loanRequestId, boolean returned) throws GeneralException {
+        LoanRequest loanRequest = loanRequestRepository.findById(loanRequestId)
+                .orElseThrow(() -> new GeneralException("No se encontró la solicitud: " + loanRequestId));
+        if (returned) {
+            loanRequest.setIsInLoan(false);
+            List<LoanSelectedEquipment> selectedEquipments = loanRequest.getSelectedEquipments();
+            for (LoanSelectedEquipment loanSelectedEquipment : selectedEquipments) {
+                Equipment equipment = loanSelectedEquipment.getEquipment();
+
+                int totalLoanedEquipments = loanSelectedEquipment.getQuantity();
+                int newTotalAvailableEquipments = equipment.getAvailableQuantity() + totalLoanedEquipments;
+                equipment.setAvailableQuantity(newTotalAvailableEquipments);
+
+                int newLoanedEquipments = equipment.getOnLoanQuantity() - totalLoanedEquipments;
+                equipment.setOnLoanQuantity(newLoanedEquipments);
+
+                equipmentRepository.save(equipment);
+            }
         }
     }
 }

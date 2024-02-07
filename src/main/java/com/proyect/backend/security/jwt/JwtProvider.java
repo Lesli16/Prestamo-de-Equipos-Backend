@@ -39,11 +39,19 @@ public class JwtProvider {
 
     //Creamos una función que permita obtener el nombre de usuario con el token
     public String getUserNameFromToken(String token) {
-
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String getRoleFromToken(String token){
+    public String generateResetPasswordToken(String userEmail) {
+        int hour = 3600000;
+        return Jwts.builder().setSubject(userEmail)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + hour))
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
+    }
+
+    public String getRoleFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         return (String) claims.get("role");
     }

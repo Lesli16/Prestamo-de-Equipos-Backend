@@ -29,6 +29,8 @@ public class Equipment {
 
     private String description;
 
+    private String location;
+
     @NotNull(message = "El stock es obligatorio")
     @Min(value = 0, message = "El stock no puede estar vacío")
     private Integer stock;

@@ -33,4 +33,6 @@ public class LoanRequest {
     private LoanRequestStatus loanRequestStatus;
 
     private LocalDate loanDuration;
+
+    private Boolean isInLoan;
 }

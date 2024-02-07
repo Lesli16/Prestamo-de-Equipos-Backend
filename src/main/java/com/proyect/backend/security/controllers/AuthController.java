@@ -1,6 +1,8 @@
 package com.proyect.backend.security.controllers;
 
+import com.proyect.backend.dtos.ForgotPasswordDto;
 import com.proyect.backend.entities.ResponseMessage;
+import com.proyect.backend.exceptions.GeneralException;
 import com.proyect.backend.security.dtos.LoginUser;
 import com.proyect.backend.security.dtos.NewUser;
 import com.proyect.backend.security.entities.User;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -74,5 +77,23 @@ public class AuthController {
             CookieUtil.clear(httpServletResponse, COOKIE_NAME);
             return new ResponseEntity<>(new ResponseMessage("Se ha cerrado la sesión desde la excepción"), HttpStatus.OK);
         }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseMessage> sendForgotPasswordEmail(@RequestParam String email) throws GeneralException, MessagingException {
+        userService.sendForgotPasswordEmail(email);
+        String responseMessage = "Pronto, recibirás un e-mail para restablecer tu contraseña. Si no puedes encontrarlo revisa tu spam";
+        return new ResponseEntity<>(new ResponseMessage(responseMessage), HttpStatus.OK);
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<ResponseMessage> resetPassword(@RequestBody @Valid ForgotPasswordDto forgotPasswordDto) throws GeneralException {
+        userService.resetPassword(forgotPasswordDto);
+        return new ResponseEntity<>(new ResponseMessage("Contraseña actualizada"), HttpStatus.OK);
+    }
+
+    @GetMapping("/validate-token")
+    public boolean validateResetPasswordToken(@RequestParam String resetTokenPassword) {
+        return userService.validateResetTokenPassword(resetTokenPassword);
     }
 }
