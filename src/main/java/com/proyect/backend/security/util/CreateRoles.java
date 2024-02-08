@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 ////EJECUTAR SOLO UNA VEZ
 //@Component
 //@RequiredArgsConstructor
-//public class CreateRoles implements CommandLineRunner {
+// public class CreateRoles implements CommandLineRunner {
 //
-//    private final RoleService roleService;
-//    private final LoanRequestStatusService loanRequestStatusService;
-//    @Override
-//    public void run(String... args) {
-//      roleService.createRole();
-//        loanRequestStatusService.createLoanRequestStatuses();
-//    }
+  // private final RoleService roleService;
+   //private final LoanRequestStatusService loanRequestStatusService;
+   // @Override
+  // public void run(String... args) {
+    // roleService.createRole();
+      // loanRequestStatusService.createLoanRequestStatuses();
+  // }
 //}
 
